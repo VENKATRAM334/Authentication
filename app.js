@@ -27,20 +27,30 @@ const initializeDbAndServer = async () => {
 };
 
 initializeDbAndServer();
+const db = new sqlite3.Database("todoApplication.db");
 
-app.post("/%20", async (request, response) => {
+db.run(`
+    CREATE TABLE IF NOT EXISTS todo(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        todo VARCHAR,
+        priority VARCHAR,
+        status VARCHAR
+    );
+    `);
+
+app.put("/todos", async (request, response) => {
   const createTableQuery = `
     INSERT INTO 
-     todo (priority, status)
-     VALUES ("HIGH", "TO DO"),
-            ("MEDIUM", "IN PROGRESS"),
-            ("LOW", "DONE");
+     todo (id, todo, priority, status)
+     VALUES (1, "Learn HTML", "HIGH", "TO DO"),
+            (2, "Learn JS", "MEDIUM", "IN PROGRESS"),
+            (3, "Learn CSS", "LOW", "DONE");
     `;
   const tableArray = await database.run(createTableQuery);
   response.send(tableArray);
 });
 
-app.get("/todos/", async (request, response) => {
+app.get("/todos/?status=TO%20DO", async (request, response) => {
   const getAllQuery = `
     SELECT * 
     FROM
@@ -50,3 +60,4 @@ app.get("/todos/", async (request, response) => {
   const listArray = await database.all(getAllQuery);
   response.send(listArray);
 });
+module.exports = app;
